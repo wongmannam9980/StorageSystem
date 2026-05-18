@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="border:none; margin:0;">Tracking Overview</h2>
+    </div>
+
+    <!-- Top Stats -->
+    <div class="dashboard-stats" style="display: flex; gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="flex:1; background:#f9fafb; padding:2rem; border-radius:12px; border:1px solid var(--border-color); text-align:center;">
+            <div class="muted" style="font-weight:bold; text-transform:uppercase; font-size:0.8rem;">Total Bins</div>
+            <div style="font-size:4rem; font-weight:900; color:var(--primary); line-height:1;">{{ stats.total }}</div>
+        </div>
+        <div style="flex:1; background:#f9fafb; padding:2rem; border-radius:12px; border:1px solid var(--border-color); text-align:center;">
+            <div class="muted" style="font-weight:bold; text-transform:uppercase; font-size:0.8rem;">Used Slots</div>
+            <div style="font-size:4rem; font-weight:900; color:var(--primary); line-height:1;">{{ stats.used }}</div>
+        </div>
+        <div style="flex:1; background:#f9fafb; padding:2rem; border-radius:12px; border:1px solid var(--border-color); text-align:center;">
+            <div class="muted" style="font-weight:bold; text-transform:uppercase; font-size:0.8rem;">Total Items</div>
+            <div style="font-size:4rem; font-weight:900; color:#059669; line-height:1;">{{ stats.total_count }}</div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="dashboard-layout" style="display: flex; gap: 2rem; align-items: flex-start;">
+        <!-- Left: Bin Grid -->
+        <div class="bin-grid" style="flex: 2;">
+            {% for b in bins %}
+            <div class="bin-card">
+                <div class="bin-photo-wrapper">
+                    {% if b.image %}
+                        <img src="{{ url_for('static', filename='images/' + b.image) }}" style="width:100%; height:100%; object-fit:cover;">
+                    {% else %}
+                        <span class="muted">No Image</span>
+                    {% endif %}
+                </div>
+                
+                <div style="padding-top: 10px;">
+                    <h3 style="margin:0; font-size:0.9rem; color:var(--text-muted);">{{ b.label }}</h3>
+                    
+                    <p style="color:var(--primary); font-weight:800; font-size:1.2rem; margin:10px 0;">
+                        {% if b.status == 'occupied' %}
+                            {{ b.item }} <br>
+                            <span style="font-size:0.8rem; font-weight:normal; color:#6b7280;">Qty: {{ b.quantity }}</span>
+                        {% else %}
+                            Empty
+                        {% endif %}
+                    </p>
+                    
+                    <span class="badge {% if b.status == 'occupied' %}badge-occupied{% else %}badge-empty{% endif %}">
+                        {{ b.status.title() }}
+                    </span>
+                    
+                    {% if b.tracking_id %}
+                        <div style="margin-top: 10px; font-size: 0.75rem; background: #e5e7eb; padding: 4px 8px; border-radius: 4px; color: #2563eb; font-weight: bold; font-family: monospace; display: inline-block;">
+                            ID: {{ b.tracking_id }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Right: Activity Log -->
+        <div class="activity-log-wrapper" style="flex: 1; background: #f9fafb; border-radius: 12px; border: 1px solid var(--border-color); padding: 1.5rem;">
+            <h3 style="margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">System Activity Log</h3>
+            <div style="max-height: 450px; overflow-y: auto;">
+                {% if logs %}
+                    {% for log in logs %}
+                    <div style="margin-bottom: 15px; border-left: 3px solid var(--primary); padding-left: 10px;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">{{ log.time }}</span>
+                        <strong style="font-size: 0.85rem; color: #111827;">{{ log.action }}</strong>
+                        <p style="margin: 3px 0 0 0; font-size: 0.85rem; color: #4b5563;">{{ log.details }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="muted" style="font-size: 0.9rem;">No activity recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

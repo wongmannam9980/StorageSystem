@@ -1,0 +1,50 @@
+{
+    "bins": [
+        {
+            "id": 1,
+            "label": "Bin 1",
+            "item": "rfid_block",
+            "quantity": 3,
+            "image": "img_2.jpg",
+            "status": "occupied",
+            "physical_state": "called_out",
+            "rfid_record": [
+                1234567,
+                132413423,
+                1242435
+            ]
+        },
+        {
+            "id": 2,
+            "label": "Bin 2",
+            "item": "ekrgh",
+            "quantity": 1,
+            "image": null,
+            "status": "occupied",
+            "physical_state": "called_out",
+            "rfid_record": []
+        }
+    ],
+    "logs": [
+        {
+            "time": "2026-04-24 14:14:45",
+            "action": "Item Stored",
+            "details": "1x ekrgh placed in Bin 2."
+        },
+        {
+            "time": "2026-04-24 10:48:53",
+            "action": "Item Stored",
+            "details": "3x rfid_block placed in Bin 1."
+        },
+        {
+            "time": "2026-04-24 10:48:46",
+            "action": "Item Deleted",
+            "details": "Permanently removed 'rfid_block' from Bin 1."
+        },
+        {
+            "time": "2026-04-24 10:48:35",
+            "action": "Item Stored",
+            "details": "1x rfid_block placed in Bin 1."
+        }
+    ]
+}

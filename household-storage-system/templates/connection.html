@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="max-width: 600px; margin: 2rem auto;">
+    <header style="border-bottom: 2px solid #f3f4f6; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        <h2 style="border: none; margin: 0;">Setup Hardware Connection</h2>
+    </header>
+
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label class="muted" style="font-weight: bold; text-transform: uppercase;">Select Port</label>
+            <div style="display: flex; gap: 10px;">
+                <select id="portSelect" class="flex: 1; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; outline: none;">
+                    {% for port in ports %}
+                    <option value="{{ port }}">{{ port }}</option>
+                    {% endfor %}
+                </select>
+                <button onclick="location.reload()" class="btn-primary" style="background: #9ca3af; padding: 0 15px; border-radius: 8px;">
+                    🔄
+                </button>
+            </div>
+        </div>
+
+        <button onclick="connectPort()" id="connectBtn" class="btn-primary" style="padding: 15px; font-weight: bold; width: 100%;">
+            Establish Serial Connection
+        </button>
+
+        <div style="border-top: 1px solid #f3f4f6; margin: 0.5rem 0;"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label class="muted" style="font-weight: bold; text-transform: uppercase;">Manual Command</label>
+            <input type="text" id="cmdInput" placeholder="e.g., spin or home_x" 
+                   style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-family: monospace;"
+                   onkeydown="if(event.key === 'Enter') sendManualCommand()">
+        </div>
+        
+        <button onclick="sendManualCommand()" class="btn-primary" style="background: #2563eb; padding: 15px; font-weight: bold;">
+            SEND RAW COMMAND
+        </button>
+        
+        <!-- Master Reset Button safely placed here -->
+        <button onclick="triggerReset()" class="btn-primary" style="background: #8b5cf6; padding: 15px; font-weight: bold; margin-top: 10px; width: 100%;">Master Reset</button>
+        
+        <div id="statusIndicator" style="margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; background: #f9fafb; border-radius: 8px;">
+            <div id="statusDot" style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444;"></div>
+            <span id="statusText" class="muted" style="font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                Disconnected
+            </span>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function connectPort() {
+        const port = document.getElementById('portSelect').value;
+        const statusText = document.getElementById('statusText');
+        const statusDot = document.getElementById('statusDot');
+
+        try {
+            const res = await fetch('/connect', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({port: port})
+            });
+            const data = await res.json();
+            
+            if(data.status === 'connected') {
+                statusText.innerText = `Online: ${port}`;
+                statusText.style.color = "#059669"; 
+                statusDot.style.backgroundColor = "#10b981";
+                statusDot.style.boxShadow = "0 0 8px rgba(16,185,129,0.4)";
+            } else {
+                statusText.innerText = 'Connection Failed';
+                statusDot.style.backgroundColor = "#ef4444";
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Server Error: Check if Flask is running.");
+        }
+    }
+
+    async function sendManualCommand() {
+        const input = document.getElementById('cmdInput');
+        const cmd = input.value;
+        if(!cmd) return;
+
+        const res = await fetch('/send', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({command: cmd})
+        });
+        const data = await res.json();
+        if(data.status === 'sent') {
+            input.value = '';
+            input.focus();
+        } else {
+            alert("Error: " + data.message);
+        }
+    }
+    
+    async function triggerReset() {
+        // This line triggers the browser warning box exactly like in your screenshot
+        if(confirm("WARNING: This will wipe all contents and data in this system. Are you sure?")) {
+            try {
+                const res = await fetch('/Master_reset', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await res.json();
+                if(data.status === 'reseted') {
+                    const statusText = document.getElementById('statusText');
+                    const originalText = statusText.innerText;
+                    statusText.innerText = "Master Reseted!";
+                    setTimeout(() => { statusText.innerText = originalText; }, 2000);
+                    
+                    // Alert user of success and redirect to dashboard to see empty system
+                    alert("Master Reset successful. All data cleared.");
+                    window.location.href = "/";
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Failed to reset");
+            }
+        }
+    }
+</script>
+{% endblock %}

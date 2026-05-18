@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="border: none; margin: 0 0 5px 0;">Storage UI</h2>
+            <p style="margin:0; font-size: 0.85rem; color: #6b7280;">Call bins, manage unique detection modes, and store items.</p>
+        </div>
+        
+        <form action="{{ url_for('call_next_empty') }}" method="POST" style="margin: 0;">
+            <button type="submit" class="btn-success" style="padding: 12px 20px; font-size: 1rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">
+                📦 Call Empty Bin to Station
+            </button>
+        </form>
+    </div>
+
+    <!-- Live Search Bar -->
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="binSearchInput" placeholder="🔍 Search by Tracking ID or Item Name..." onkeyup="filterBins()" style="width: 100%; padding: 14px; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 8px; outline: none;">
+    </div>
+
+    <!-- MAIN LAYOUT: GRID ON LEFT, LOG ON RIGHT -->
+    <div class="dashboard-layout" style="display: flex; gap: 2rem; align-items: flex-start;">
+        
+        <!-- BIN GRID (LEFT) -->
+        <div style="flex: 3;">
+            <div class="bin-grid">
+                {% for b in bins %}
+                <div class="bin-card search-card {% if b.physical_state == 'called_out' %} bin-card-active {% endif %}" data-search="{% if b.tracking_id %}{{ b.tracking_id | lower }}{% endif %} {{ b.label | lower }} {{ b.item | lower }}">
+
+                    <div class="bin-photo-wrapper">
+                        {% if b.image %}
+                            <img src="{{ url_for('static', filename='images/' + b.image) }}" style="width:100%; height:100%; object-fit:cover;">
+                        {% else %}
+                            <span class="muted">No Image</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <h3 style="margin: 0;">{{ b.label }}</h3>
+                        {% if b.tracking_id %}
+                            <span style="font-size: 0.75rem; background: #e5e7eb; padding: 4px 8px; border-radius: 4px; color: #2563eb; font-weight: bold; font-family: monospace;">ID: {{ b.tracking_id }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="{% if b.physical_state == 'called_out' %}status-text-active{% else %}muted{% endif %}" style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold;">
+                       {% if b.physical_state == 'called_out' %}At User Station{% else %}In Rack{% endif %}
+                    </p>
+
+                    <div style="background: #f9fafb; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem;">
+                        <p style="margin: 0 0 4px 0;"><strong>Item:</strong> {{ b.item if b.item else "Empty" }}</p>
+                        
+                        <!-- QUANTITY ONLY SHOWN FOR MANUAL AND RFID -->
+                        {% if b.mode == 'manual' or b.mode == 'rfid' %}
+                            <p style="margin: 0 0 4px 0;"><strong>Qty:</strong> {{ b.quantity }}</p>
+                        {% endif %}
+                        
+                        {% if b.rfid_record %}
+                            <p style="margin: 0; font-size: 0.75rem; color: #6b7280; font-family: monospace;">RFID: {{ b.rfid_record|join(', ') }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- ACTIONS IF IN RACK -->
+                    {% if b.physical_state == 'waiting' %}
+                        <form action="{{ url_for('update_bin', bin_id=b.id) }}" method="POST">
+                            <button type="submit" name="action" value="call_out" class="btn-success" style="width:100%; background: #2563eb; margin-bottom: 8px;">⬇️ Call to Station</button>
+                        </form>
+                        
+                        <!-- CLEAN UP BIN ONLY AVAILABLE WHEN IN RACK -->
+                        {% if b.status == 'occupied' %}
+                            <form action="{{ url_for('update_bin', bin_id=b.id) }}" method="POST">
+                                <button type="submit" name="action" value="clear_all" class="btn-retrieve" style="width:100%; background: #dc2626;" onclick="return confirm('WARNING: This will wipe all contents and data in this bin. Are you sure?');">⚠️ Clean Up All Data in Bin</button>
+                            </form>
+                        {% endif %}
+
+                    <!-- ACTIONS IF AT STATION -->
+                    {% else %}
+                        
+                        <!-- IF AT STATION & EMPTY (STORING) -->
+                        {% if b.status == 'empty' %}
+                            <!-- UNIQUE MODE SELECTOR -->
+                            <form action="{{ url_for('set_mode', bin_id=b.id) }}" method="POST" style="margin-bottom:8px; border-top: 1px dashed #d1d5db; padding-top: 10px;">
+                                <label style="font-size: 0.75rem; font-weight: bold; color: #4b5563;">Select Detection Mode:</label>
+                                <select name="mode" onchange="this.form.submit()" style="width:100%; padding:6px; border:1px solid #d1d5db; border-radius:6px; font-size: 0.85rem; background: white; margin-top: 4px;">
+                                    <option value="manual" {% if b.mode == 'manual' %}selected{% endif %}>Manual Input</option>
+                                    <option value="camera" {% if b.mode == 'camera' %}selected{% endif %}>Camera</option>
+                                    <option value="rfid" {% if b.mode == 'rfid' %}selected{% endif %}>RFID Scanner</option>
+                                </select>
+                            </form>
+
+                            <form action="{{ url_for('update_bin', bin_id=b.id) }}" method="POST" enctype="multipart/form-data">
+                                <input type="text" name="item_name" placeholder="Item Name (Optional)" style="width:100%; padding:8px; margin-bottom:6px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;">
+                                
+                                {% if b.mode == 'manual' %}
+                                    <input type="number" name="amount" placeholder="Quantity" min="1" value="1" required style="width:100%; padding:8px; margin-bottom:6px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;">
+                                
+                                {% elif b.mode == 'camera' %}
+                                    <p style="font-size: 0.75rem; color: #166534; font-weight: bold; margin: 0 0 8px 0; text-align: center;">📸 Photo captured automatically from Macbook camera.</p>
+                                
+                                {% elif b.mode == 'rfid' %}
+                                    <p style="font-size: 0.75rem; color: #4b5563; margin: 0 0 6px 0;">System will scan RFID tags on Save.</p>
+                                    <p style="font-size: 0.75rem; color: #166534; font-weight: bold; margin: 0 0 8px 0; text-align: center;">📸 Photo captured automatically from Macbook camera.</p>
+                                {% endif %}
+                                
+                                <button type="submit" name="action" value="storage" class="btn-primary" style="width:100%; margin-bottom:8px;">Save</button>
+                            </form>
+                        {% endif %}
+
+                        <!-- IF AT STATION & OCCUPIED (RETRIEVING) -->
+                        {% if b.status == 'occupied' %}
+                            <div style="margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
+                                
+                                <!-- ONLY SHOW DELETE BUTTON FOR MANUAL MODE -->
+                                {% if b.mode == 'manual' %}
+                                <form action="{{ url_for('update_bin', bin_id=b.id) }}" method="POST" style="display:flex; gap:10px; margin-bottom:8px; align-items: center;">
+                                    <!-- SMALL NUMBER INPUT FOR QUANTITY DELETION -->
+                                    <input type="number" name="delete_qty" placeholder="Qty" min="1" max="{{ b.quantity }}" required style="width: 70px; padding:10px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box; font-size:14px; text-align: center;">
+                                    <button type="submit" name="action" value="delete" class="btn-retrieve" style="flex:1; padding: 10px 15px;">Delete</button>
+                                </form>
+                                {% endif %}
+                                
+                            </div>
+                        {% endif %}
+
+                        <!-- RETURN BUTTON -->
+                        <form action="{{ url_for('update_bin', bin_id=b.id) }}" method="POST">
+                            <button type="submit" name="action" value="return_wait" class="btn-primary" style="background: #4b5563; width:100%;">⬆️ Return to Rack</button>
+                        </form>
+
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ACTIVITY LOG (RIGHT) -->
+        <div style="flex: 1; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; min-width: 250px;">
+            <h3 style="margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">Activity Log</h3>
+            <div style="max-height: 500px; overflow-y: auto;">
+                {% if logs %}
+                    {% for log in logs %}
+                    <div style="margin-bottom: 15px; border-left: 3px solid #2563eb; padding-left: 10px;">
+                        <span style="font-size: 0.75rem; color: #6b7280; display: block;">{{ log.time }}</span>
+                        <strong style="font-size: 0.85rem; color: #111827;">{{ log.action }}</strong>
+                        <p style="margin: 3px 0 0 0; font-size: 0.85rem; color: #4b5563;">{{ log.details }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="muted" style="font-size: 0.9rem;">No activity recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function filterBins() {
+        let input = document.getElementById('binSearchInput').value.toLowerCase();
+        let cards = document.getElementsByClassName('search-card');
+        for (let i = 0; i < cards.length; i++) {
+            let searchableData = cards[i].getAttribute('data-search');
+            if (searchableData.includes(input)) {
+                cards[i].style.display = "";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
+</script>
+{% endblock %}

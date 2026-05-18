@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flex-Bin System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="topbar">
+        <div class="header-content">
+            <a href="{{ url_for('dashboard') }}" class="brand-btn">FLEX-BIN SYSTEM</a>
+            <div class="header-right">
+                <a href="{{ url_for('dashboard') }}" class="btn-setup-pill">Dashboard</a>
+                <a href="{{ url_for('storage') }}" class="btn-setup-pill">Storage UI</a>
+                <a href="{{ url_for('connection') }}" class="btn-setup-pill">Hardware Connection</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
