@@ -1,0 +1,529 @@
+{
+    "packages": [
+        {
+            "id": 1,
+            "label": "Locker 1",
+            "customer": null,
+            "item": null,
+            "quantity": 0,
+            "status": "empty",
+            "image": null,
+            "qrcode": null,
+            "physical_state": "waiting",
+            "stored_time": "2026-04-27T15:46:20.035238",
+            "returned_time": "2026-04-27T15:46:30.907756",
+            "tracking_id": null
+        },
+        {
+            "id": 2,
+            "label": "Locker 2",
+            "customer": null,
+            "item": null,
+            "quantity": 0,
+            "status": "empty",
+            "image": null,
+            "qrcode": null,
+            "physical_state": "waiting",
+            "stored_time": null,
+            "returned_time": null,
+            "tracking_id": null
+        }
+    ],
+    "logs": [
+        {
+            "time": "2026-04-27 15:46:40",
+            "action": "Pickup",
+            "details": "Customer retrieved item from Locker 1."
+        },
+        {
+            "time": "2026-04-27 15:46:30",
+            "action": "Pickup",
+            "details": "Customer retrieved esthestyt from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 15:46:20",
+            "action": "Lodged",
+            "details": "Stored esthestyt for lohoichun12@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:46:14",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:46:07",
+            "action": "Pickup",
+            "details": "Customer retrieved item from Locker 1."
+        },
+        {
+            "time": "2026-04-27 15:46:01",
+            "action": "Pickup",
+            "details": "Customer retrieved ibhSWGR from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 15:45:46",
+            "action": "Lodged",
+            "details": "Stored ibhSWGR for lohoichun12@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:45:36",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:45:35",
+            "action": "Pickup",
+            "details": "Customer retrieved item from Locker 1."
+        },
+        {
+            "time": "2026-04-27 15:45:28",
+            "action": "Pickup",
+            "details": "Customer retrieved as from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 15:34:23",
+            "action": "Lodged",
+            "details": "Stored as for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:34:20",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:32:25",
+            "action": "System Reset",
+            "details": "All data cleared by Admin."
+        },
+        {
+            "time": "2026-04-27 15:31:54",
+            "action": "Pickup",
+            "details": "Customer retrieved item from Locker 2."
+        },
+        {
+            "time": "2026-04-27 15:31:52",
+            "action": "Pickup",
+            "details": "Customer retrieved 2 from Locker 2. Data cleared."
+        },
+        {
+            "time": "2026-04-27 15:31:24",
+            "action": "Lodged",
+            "details": "Stored 2 for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:31:21",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:31:16",
+            "action": "Lodged",
+            "details": "Stored 1 for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:31:14",
+            "action": "Lodged",
+            "details": "Stored  for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:26:30",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:26:26",
+            "action": "Pickup",
+            "details": "Customer retrieved item from Locker 1."
+        },
+        {
+            "time": "2026-04-27 15:26:23",
+            "action": "Pickup",
+            "details": "Customer retrieved milk from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 15:26:10",
+            "action": "Lodged",
+            "details": "Stored milk for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:26:06",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:26:02",
+            "action": "System Reset",
+            "details": "All data cleared by Admin."
+        },
+        {
+            "time": "2026-04-27 15:25:47",
+            "action": "Lodged",
+            "details": "Stored 12 for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:14:41",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:14:40",
+            "action": "Pickup",
+            "details": "Customer retrieved item from Locker 2."
+        },
+        {
+            "time": "2026-04-27 15:14:36",
+            "action": "Pickup",
+            "details": "Customer retrieved milk from Locker 2. Data cleared."
+        },
+        {
+            "time": "2026-04-27 15:14:13",
+            "action": "Lodged",
+            "details": "Stored milk for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:14:10",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:14:05",
+            "action": "Lodged",
+            "details": "Stored milk for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:14:03",
+            "action": "Lodged",
+            "details": "Stored milk for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:14:02",
+            "action": "Lodged",
+            "details": "Stored milk for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:14:02",
+            "action": "Lodged",
+            "details": "Stored milk for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:13:58",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:13:55",
+            "action": "Pickup",
+            "details": "Customer retrieved item from Locker 1."
+        },
+        {
+            "time": "2026-04-27 15:13:46",
+            "action": "Pickup",
+            "details": "Customer retrieved 1 from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 15:13:29",
+            "action": "Lodged",
+            "details": "Stored 1 for wongmannam9980@gmail.com."
+        },
+        {
+            "time": "2026-04-27 15:04:48",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 15:00:00",
+            "action": "System Reset",
+            "details": "All data cleared by Admin."
+        },
+        {
+            "time": "2026-04-27 14:45:43",
+            "action": "Pickup",
+            "details": "Customer retrieved 2 from Locker 2. Data cleared."
+        },
+        {
+            "time": "2026-04-27 14:45:21",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:42:01",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:31:47",
+            "action": "Pickup",
+            "details": "Customer retrieved abc1 from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 14:31:20",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:27:20",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:27:17",
+            "action": "Pickup",
+            "details": "Customer retrieved 1 from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 14:24:55",
+            "action": "Lodged",
+            "details": "Stored 1x 1 for wongmannam9980@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 14:24:49",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:23:56",
+            "action": "Returned",
+            "details": "Locker 1 returned to rack."
+        },
+        {
+            "time": "2026-04-27 14:23:54",
+            "action": "Pickup",
+            "details": "Customer retrieved abc1 from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 14:23:39",
+            "action": "Returned",
+            "details": "Locker 1 returned to rack."
+        },
+        {
+            "time": "2026-04-27 14:23:37",
+            "action": "Called Out",
+            "details": "Locker 1 manually called out by Developer."
+        },
+        {
+            "time": "2026-04-27 14:23:20",
+            "action": "Lodged",
+            "details": "Stored 3x abc1 for wongmannam9980@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 14:23:14",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:23:05",
+            "action": "Returned",
+            "details": "Locker 1 returned to rack."
+        },
+        {
+            "time": "2026-04-27 14:23:02",
+            "action": "Pickup",
+            "details": "Customer retrieved 1 from Locker 1. Data cleared."
+        },
+        {
+            "time": "2026-04-27 14:22:49",
+            "action": "Lodged",
+            "details": "Stored 5x 1 for wongmannam9980@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 14:22:42",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:22:40",
+            "action": "System Reset",
+            "details": "All data cleared by Admin."
+        },
+        {
+            "time": "2026-04-27 14:22:28",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:15:52",
+            "action": "Pickup",
+            "details": "Customer called out Locker 1 using PIN."
+        },
+        {
+            "time": "2026-04-27 14:15:01",
+            "action": "Lodged",
+            "details": "Stored 4x abc for wongmannam9980@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 14:14:53",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:14:47",
+            "action": "Returned",
+            "details": "Locker 2 returned empty to rack by User."
+        },
+        {
+            "time": "2026-04-27 14:14:45",
+            "action": "Returned",
+            "details": "Locker 1 returned empty to rack by User."
+        },
+        {
+            "time": "2026-04-27 14:02:57",
+            "action": "Called Out",
+            "details": "Locker 2 manually called out by Developer."
+        },
+        {
+            "time": "2026-04-27 14:02:55",
+            "action": "Returned",
+            "details": "Locker 2 returned to rack."
+        },
+        {
+            "time": "2026-04-27 14:00:56",
+            "action": "Pickup",
+            "details": "Customer called out Locker 2 using PIN."
+        },
+        {
+            "time": "2026-04-27 14:00:40",
+            "action": "Lodged",
+            "details": "Stored 5x 1 for wongmannam9980@gmail.com in Locker 2."
+        },
+        {
+            "time": "2026-04-27 14:00:29",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 14:00:24",
+            "action": "Pickup",
+            "details": "Customer called out Locker 1 using PIN."
+        },
+        {
+            "time": "2026-04-27 14:00:07",
+            "action": "Lodged",
+            "details": "Stored 4x box1 for wongmannam9980@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 14:00:00",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 13:59:59",
+            "action": "Returned",
+            "details": "Locker 1 returned to rack."
+        },
+        {
+            "time": "2026-04-27 13:59:52",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 13:59:46",
+            "action": "System Reset",
+            "details": "All data cleared by Admin."
+        },
+        {
+            "time": "2026-04-27 11:54:03",
+            "action": "Lodged",
+            "details": "Stored 4x abc1 for wongmannam9980@gmail.com in Locker 2."
+        },
+        {
+            "time": "2026-04-27 11:53:52",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 11:49:13",
+            "action": "Lodged",
+            "details": "Stored 1x 1 for wongmannam9980@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 11:49:04",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 11:49:01",
+            "action": "System Reset",
+            "details": "All data cleared by Admin."
+        },
+        {
+            "time": "2026-04-27 11:48:05",
+            "action": "Lodged",
+            "details": "Stored 5x as for wongmannam9980@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 11:47:56",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 11:36:58",
+            "action": "Returned",
+            "details": "Locker 1 returned empty to rack by User."
+        },
+        {
+            "time": "2026-04-27 11:36:46",
+            "action": "Pickup",
+            "details": "Customer called out Locker 1."
+        },
+        {
+            "time": "2026-04-27 11:36:20",
+            "action": "Lodged",
+            "details": "Stored 3x Jacky Lo for lohoichun12@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 11:35:57",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 11:35:49",
+            "action": "Force Cleared",
+            "details": "Locker 2 force cleared."
+        },
+        {
+            "time": "2026-04-27 11:35:46",
+            "action": "Force Cleared",
+            "details": "Locker 1 force cleared."
+        },
+        {
+            "time": "2026-04-27 11:34:14",
+            "action": "Lodged",
+            "details": "Stored 4x abc for wongmannam9980@gmail.com in Locker 2."
+        },
+        {
+            "time": "2026-04-27 11:34:10",
+            "action": "Called Out",
+            "details": "Locker 2 called out automatically by User."
+        },
+        {
+            "time": "2026-04-27 11:34:06",
+            "action": "Lodged",
+            "details": "Stored 1x abc for wongmannam9980@gmail.com in Locker 1."
+        },
+        {
+            "time": "2026-04-27 11:33:58",
+            "action": "Called Out",
+            "details": "Locker 1 called out automatically by User."
+        }
+    ],
+    "returns": [
+        {
+            "time": "2026-04-27 15:46:30",
+            "label": "Locker 1",
+            "item": "esthestyt",
+            "customer": "lohoichun12@gmail.com"
+        },
+        {
+            "time": "2026-04-27 15:46:01",
+            "label": "Locker 1",
+            "item": "ibhSWGR",
+            "customer": "lohoichun12@gmail.com"
+        },
+        {
+            "time": "2026-04-27 15:45:28",
+            "label": "Locker 1",
+            "item": "as",
+            "customer": "wongmannam9980@gmail.com"
+        }
+    ]
+}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="max-width: 600px; margin: 2rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 2.5rem; border: 1px solid #f3f4f6;">
+    
+    <h2 style="margin-top: 0; margin-bottom: 2rem; border-bottom: 1px solid #f3f4f6; padding-bottom: 15px;">Setup Hardware Connection</h2>
+    
+    <div style="margin-bottom: 2.5rem;">
+        <label style="display: block; font-weight: bold; color: #6b7280; font-size: 0.9rem; margin-bottom: 10px;">SELECT PORT</label>
+        <form action="{{ url_for('setup_connection') }}" method="POST">
+            <div style="display: flex; gap: 1rem; margin-bottom: 15px;">
+                <select name="port" style="flex: 1; padding: 14px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 1rem; color: #374151; background: white; appearance: none; outline: none;">
+                    <option value="/dev/cu.debug-console">/dev/cu.debug-console</option>
+                    <option value="COM3">COM3 (Windows)</option>
+                    <option value="/dev/ttyUSB0">/dev/ttyUSB0 (Linux)</option>
+                </select>
+                <button type="button" style="background: #9ca3af; color: white; border: none; padding: 0 20px; border-radius: 6px; cursor: pointer; flex: 1;">
+                    🔄 Refresh Ports
+                </button>
+            </div>
+            <button type="submit" style="width: 100%; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
+                Establish Serial Connection
+            </button>
+        </form>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #f3f4f6; margin: 2rem 0;">
+
+    <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: bold; color: #6b7280; font-size: 0.9rem; margin-bottom: 10px;">MANUAL COMMAND</label>
+        <input type="text" placeholder="e.g., spin or home_x" style="width: 100%; padding: 14px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 1rem; margin-bottom: 15px; font-family: monospace; box-sizing: border-box;">
+        <button type="button" onclick="alert('Command sent to gantry.');" style="width: 100%; background: #2563eb; color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
+            SEND RAW COMMAND
+        </button>
+    </div>
+
+    <div style="margin-bottom: 2rem;">
+        <form action="{{ url_for('initialize_system') }}" method="POST" onsubmit="return confirm('WARNING: Are you absolutely sure you want to wipe all lockers?');">
+            <button type="submit" style="width: 100%; background: #8b5cf6; color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(139,92,246,0.2);">
+                Master Reset
+            </button>
+        </form>
+    </div>
+
+    <div style="background: #f9fafb; padding: 15px; border-radius: 6px; text-align: center; font-weight: bold; color: #6b7280; letter-spacing: 1px;">
+        <span style="color: #ef4444; font-size: 1.2rem; vertical-align: middle; margin-right: 5px;">●</span> DISCONNECTED
+    </div>
+
+</div>
+
+{% endblock %}

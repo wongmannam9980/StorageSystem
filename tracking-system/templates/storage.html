@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ============================================================ -->
+<!-- USER VIEW                                                    -->
+<!-- ============================================================ -->
+{% if role == 'user' %}
+
+<!-- SAFELY TRACK SYSTEM STATES (NO ARRAYS OR APPEND TO AVOID IDE ERRORS) -->
+{% set state = namespace(has_empty_station=false, has_retrieving=false, has_waiting=false, has_any_calledout=false) %}
+
+{% for b in lockers %}
+    {% if b.physical_state == 'calledout' %}
+        {% set state.has_any_calledout = true %}
+        {% if b.status == 'empty' %}
+            {% set state.has_empty_station = true %}
+        {% elif b.status == 'retrieving' %}
+            {% set state.has_retrieving = true %}
+        {% endif %}
+    {% elif b.physical_state == 'waiting' and b.status == 'occupied' %}
+        {% set state.has_waiting = true %}
+    {% endif %}
+{% endfor %}
+
+<div style="max-width: 1000px; margin: 2rem auto;">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'success' %}
+                    <div style="padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; text-align:center; font-size: 0.95rem; background: #dcfce7; color: #166534;">{{ message }}</div>
+                {% elif category == 'danger' %}
+                    <div style="padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; text-align:center; font-size: 0.95rem; background: #fee2e2; color: #991b1b;">{{ message }}</div>
+                {% else %}
+                    <div style="padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; text-align:center; font-size: 0.95rem; background: #fef9c3; color: #854d0e;">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: flex-start;">
+        
+        <!-- ============================================== -->
+        <!-- TABLE 1: STORAGE TERMINAL                      -->
+        <!-- ============================================== -->
+        <div class="card" style="flex: 1; min-width: 320px;">
+            <div style="text-align: center; margin-bottom: 1.5rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 1rem;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">📥</div>
+                <h2 style="border: none; margin: 0; font-size: 1.5rem; color: #1f2937;">Storage Terminal</h2>
+                <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 0.9rem;">Store your items securely</p>
+            </div>
+            
+            {% if state.has_empty_station %}
+                {% for b in lockers %}
+                    {% if b.physical_state == 'calledout' and b.status == 'empty' %}
+                    <div class="active-bin-container" style="background: white; border: 2px solid #2563eb; border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 15px; position: relative;">
+                        
+                        <!-- AUTO-RETURN TIMER -->
+                        <div style="position: absolute; top: -12px; right: 15px; background: #ef4444; color: white; font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            Auto-return in <span class="countdown-timer">30</span>s
+                        </div>
+
+                        <p style="color: #2563eb; font-weight: bold; font-size: 1.1rem; margin: 0 0 15px 0; text-align: center;">{{ b.label }} is ready at the station!</p>
+                        
+                        <form action="{{ url_for('update_bin', bin_id=b.id) }}" method="POST" enctype="multipart/form-data" class="auto-return-form">
+                            
+                            <div style="margin-bottom: 15px; padding: 15px; background: #f0fdf4; border-radius: 6px; border: 1px solid #bbf7d0; text-align: center;">
+                                
+                                <!-- LIVE OPENCV CAMERA FEED -->
+                                <div style="width: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 10px; border: 2px solid #2563eb; background: #000; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="{{ url_for('video_feed') }}" style="width: 100%; display: block;" alt="Camera Feed" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                                    <span style="display: none; color: #fff; font-size: 0.9rem;">⚠️ Camera unavailable</span>
+                                </div>
+
+                                <p style="font-size: 0.85rem; color: #166534; font-weight: bold; margin: 0;">📸 Live System Camera Feed.<br>System will capture image on lock.</p>
+                            </div>
+                            
+                            <label style="font-size: 0.8rem; font-weight: bold; color: #6b7280; display:block; margin-bottom: 4px;">YOUR EMAIL</label>
+                            <input type="email" name="customer_name" placeholder="email@example.com" required style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;" />
+                            
+                            <label style="font-size: 0.8rem; font-weight: bold; color: #6b7280; display:block; margin-bottom: 4px;">ITEM DESCRIPTION</label>
+                            <input type="text" name="item_details" placeholder="e.g. Blue Backpack" required style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;" />
+                            
+                            <!-- ============================================== -->
+                            <!-- NEW: IMAGE CAPTURE LOGIC AND STORE BUTTON      -->
+                            <!-- ============================================== -->
+                            <!-- HIDDEN INPUT FOR BASE64 IMAGE -->
+                            <input type="hidden" name="captured_image" id="captured_image_{{ b.id }}" value="">
+                            
+                            <button type="button" onclick="captureAndSubmit('{{ b.id }}')" style="width:100%; padding: 16px; font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
+                            Lock & Store Item
+                            </button>
+
+                            <!-- SCRIPT TO CAPTURE THE CAMERA FEED AND SUBMIT -->
+                            <script>
+                                function captureAndSubmit(binId) {
+                                    const videoImage = document.querySelector('img[alt="Camera Feed"]');
+                                    const canvas = document.createElement('canvas');
+                                    
+                                    // Use natural resolution of the video stream
+                                    canvas.width = videoImage.naturalWidth || 640;
+                                    canvas.height = videoImage.naturalHeight || 480;
+                                    
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.drawImage(videoImage, 0, 0, canvas.width, canvas.height);
+                                    
+                                    // Set base64 data to hidden input
+                                    document.getElementById('captured_image_' + binId).value = canvas.toDataURL('image/jpeg');
+                                    
+                                    // Submit form with the correct action value
+                                    const form = document.getElementById('captured_image_' + binId).closest('form');
+                                    const actionInput = document.createElement('input');
+                                    actionInput.type = 'hidden';
+                                    actionInput.name = 'action';
+                                    actionInput.value = 'store_sendqr';
+                                    form.appendChild(actionInput);
+                                    
+                                    form.submit();
+                                }
+                            </script>
+                            <!-- ============================================== -->
+
+                            <input type="hidden" name="action" value="return_wait" class="hidden-return-action" disabled />
+                            <button type="submit" name="action" value="return_wait" formnovalidate class="manual-return-btn" style="width:100%; padding: 14px; font-size: 1rem; font-weight: 500; text-align: center; background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 30px; cursor: pointer;">
+                                Cancel & Return Bin to Rack
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div style="padding: 30px 20px; background: #f9fafb; border-radius: 12px; text-align: center; border: 1px dashed #d1d5db;">
+                    <p style="color: #4b5563; font-size: 1.1rem; margin: 0 0 20px 0;">Need to store an item?</p>
+                    <form action="{{ url_for('call_next_empty') }}" method="POST">
+                        <button type="submit" class="btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem; border-radius: 8px;">📦 Call Empty Bin to Station</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+            <!-- ============================================== -->
+            <!-- TABLE 2: RETRIEVAL TERMINAL                    -->
+            <!-- ============================================== -->
+        <div style="background: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; flex: 1; min-width: 320px;">
+            
+            <style>
+                @keyframes pulse-border {
+                    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+                    70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+
+            <div style="text-align: center; margin-bottom: 1.5rem; border-bottom: 2px solid #f3f4f6; padding-bottom: 1rem;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">📦</div>
+                <h2 style="border: none; margin: 0; font-size: 1.5rem; color: #1f2937;">Retrieval Terminal</h2>
+                <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 0.9rem;">Scan QR or Enter PIN to get your item</p>
+            </div>
+
+            <!-- 1. SHOW "ITEM READY" ANNOUNCEMENT -->
+            {% if state.has_retrieving %}
+                {% for b in lockers %}
+                    {% if b.physical_state == 'calledout' and b.status == 'retrieving' %}
+                    <div class="active-bin-container announcement-box" style="background: #ecfdf5; border: 4px solid #10b981; border-radius: 12px; padding: 25px; margin-bottom: 25px; text-align: center; animation: pulse-border 2s infinite;">
+                        
+                        <h2 style="color: #047857; font-size: 1.8rem; margin: 0 0 10px 0;">🎉 Item Ready for Pickup!</h2>
+                        <p style="color: #065f46; font-size: 1.1rem; margin-bottom: 15px;">Locker <strong>{{ b.label }}</strong> is now open.</p>
+
+                        {% if b.image %}
+                            <img src="{{ url_for('static', filename='images/' + b.image) }}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; border: 2px solid #a7f3d0;" alt="Item Image" />
+                        {% endif %}
+
+                        <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #a7f3d0;">
+                            <p style="margin: 0; font-size: 1.2rem;"><strong>Item:</strong> {{ b.item }}</p>
+                            <p style="margin: 5px 0 0 0; color: #4b5563;">Quantity: {{ b.quantity }} pcs</p>
+                        </div>
+
+                        <!-- MANUAL CLEAR UP BUTTON -->
+                        <form action="{{ url_for('update_bin', bin_id=b.id) }}" method="POST">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #047857; font-weight: bold;">Don't forget to clear the system once you take your item!</p>
+                            <button type="submit" name="action" value="user_clear_up" formnovalidate style="width: 100%; padding: 16px; font-size: 1.15rem; font-weight: bold; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">
+                                I took my item (Clear Up)
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            
+                        <!-- 2. REGULAR QR SCANNER SECTION (Hidden if station is busy) -->
+            {% else %}
+                <p style="color: #4b5563; font-size: 1rem; margin: 0 0 15px 0; text-align: center; font-weight: bold;">Scan QR or Enter PIN</p>
+                
+                {% if state.has_waiting %}
+                    <!-- OPENCV QR CAMERA FEED -->
+                    <div style="width: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 15px; border: 2px solid #2563eb; background: #000; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <img src="{{ url_for('video_feed') }}" style="width: 100%; display: block;" alt="QR Scanner Feed" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                        <span style="display: none; color: #fff; font-size: 0.9rem;">⚠️ Camera unavailable</span>
+                    </div>
+                    
+                    <!-- ONE UNIFIED FORM -->
+                    <form id="global-retrieval-form" action="{{ url_for('verify_global_pin') }}" method="POST" style="margin-bottom: 10px;">
+                        <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 10px 0; text-align: center;">Or enter code manually:</p>
+                        <input type="text" id="global_qrcode_input" name="qrcode_input" placeholder="e.g. A3F9C2" required style="width:100%; padding:14px; font-size: 1.2rem; text-align: center; letter-spacing: 6px; text-transform: uppercase; border:2px solid #d1d5db; border-radius:8px; box-sizing:border-box; margin-bottom: 12px;" />
+                        <button type="submit" class="btn-primary" style="width:100%; padding: 14px; font-size: 1.1rem; border-radius: 8px; background: #2563eb; color:white; border:none; font-weight:bold;">Verify & Call Bin</button>
+                    </form>
+                    
+                    <!-- JAVASCRIPT TO POLL BACKEND FOR OPENCV SCANS -->
+                    <script>
+                        let scanInterval = setInterval(function() {
+                            fetch('/api/check_qr')
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.found && data.data) {
+                                        // Stop checking
+                                        clearInterval(scanInterval);
+                                        
+                                        // Play success beep
+                                        const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'); 
+                                        audio.play().catch(e => {});
+
+                                        // Fill input and submit form
+                                        const inputField = document.getElementById("global_qrcode_input");
+                                        const form = document.getElementById("global-retrieval-form");
+                                        
+                                        inputField.value = data.data;
+                                        inputField.style.borderColor = "#10b981";
+                                        inputField.style.backgroundColor = "#dcfce7";
+                                        
+                                        form.submit();
+                                    }
+                                })
+                                .catch(err => { /* Ignore fetch errors */ });
+                        }, 500); // Check every half second
+                    </script>
+
+                {% else %}
+                    <div style="padding: 15px; background: white; border-radius: 8px; text-align: center; color: #9ca3af; border: 1px solid #e5e7eb;">
+                        No items currently stored in the rack.
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // AUTO-RETURN TIMER LOGIC (FOR STORAGE)
+    const activeForms = document.querySelectorAll('.auto-return-form');
+    if (activeForms.length > 0) {
+        let timeRemaining = 30; 
+        const timerDisplays = document.querySelectorAll('.countdown-timer');
+        let countdownInterval;
+
+        function updateTimer() {
+            timeRemaining--;
+            timerDisplays.forEach(display => {
+                display.innerText = timeRemaining;
+            });
+
+            if (timeRemaining <= 0) {
+                clearInterval(countdownInterval);
+                activeForms.forEach(form => {
+                    form.querySelector('.hidden-return-action').disabled = false;
+                    setTimeout(() => form.submit(), 100); 
+                });
+            }
+        }
+
+        function resetTimer() {
+            timeRemaining = 30;
+            timerDisplays.forEach(display => {
+                display.innerText = timeRemaining;
+            });
+        }
+
+        countdownInterval = setInterval(updateTimer, 1000);
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('keydown', resetTimer);
+        document.addEventListener('click', resetTimer);
+    }
+</script>
+
+<!-- AUTO REFRESH SCRIPT (SILENT BACKGROUND CHECKS) -->
+{% if state.has_any_calledout %}
+<script type="text/javascript">
+    setInterval(function() {
+        // 1. Check if user is typing (fixes the disappearing text bug)
+        const textInputs = document.querySelectorAll('input[type="text"], input[type="email"]');
+        let userIsTyping = false;
+        
+        textInputs.forEach(input => {
+            if (input.value.trim() !== '') {
+                userIsTyping = true;
+            }
+        });
+
+        // 2. If the user isn't typing, silently check for hardware updates in the background
+        if (!userIsTyping) {
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(backgroundHtml => {
+                    const screenHasWaitingMessage = document.body.innerText.includes("Please remove your item from the locker");
+                    const serverStillWaiting = backgroundHtml.includes("Please remove your item from the locker");
+
+                    // If our screen shows the waiting message, but the server says the item is gone,
+                    // the hardware has updated! ONLY THEN do we refresh the page.
+                    if (screenHasWaitingMessage && !serverStillWaiting) {
+                        window.location.reload();
+                    }
+                });
+        }
+    }, 3000); 
+</script>
+{% endif %}
+
+<!-- ============================================================ -->
+<!-- DEVELOPER VIEW                                               -->
+<!-- ============================================================ -->
+{% else %}
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="border: none; margin: 0 0 5px 0;">Developer Console</h2>
+            <p style="margin:0; font-size: 0.85rem; color: #6b7280;">System Overview and Override Controls</p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <a href="{{ url_for('set_role', role='user') }}" class="btn-setup-pill" style="display:inline-block; color:#2563eb; background:#eff6ff;">User View</a>
+        </div>
+    </div>
+
+    <!-- Live Search Bar -->
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="binSearchInput" placeholder="🔍 Search by Tracking ID, Customer, Item, or Bin Number..." onkeyup="filterBins()" style="width: 100%; padding: 14px; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 8px; box-sizing: border-box; outline: none; transition: border-color 0.2s;" />
+    </div>
+
+    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+        <div class="bin-grid" style="flex: 2;">
+            {% for b in lockers %}
+            <div class="bin-card search-card {% if b.physical_state == 'calledout' %} bin-card-active {% endif %}" data-search="{{ b.label | lower }} {{ b.tracking_id | lower }} {{ b.customer | lower }} {{ b.item | lower }}">
+
+                <div class="bin-photo-wrapper">
+                    {% if b.image %}
+                        <img src="{{ url_for('static', filename='images/' + b.image) }}" style="width:100%; height:100%; object-fit:cover;" alt="Bin Image" />
+                    {% else %}
+                        <span class="muted">No Image</span>
+                    {% endif %}
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <h3 style="margin: 0;">{{ b.label }}</h3>
+                    {% if b.tracking_id %}
+                        <span style="font-size: 0.7rem; background: #e5e7eb; padding: 3px 6px; border-radius: 4px; color: #4b5563; font-family: monospace;">{{ b.tracking_id }}</span>
+                    {% endif %}
+                </div>
+                
+                <p class="{% if b.physical_state == 'calledout' %}status-text-active{% else %}muted{% endif %}" style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold;">
+                   {% if b.physical_state == 'calledout' %}At User Station{% else %}In Rack{% endif %}
+                </p>
+
+                <div style="background: #f9fafb; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 12px; font-size: 0.9rem;">
+                    {% if b.status == 'empty' %}
+                        <p class="muted" style="margin:0;">Locker is Empty.</p>
+                    {% else %}
+                        <p style="margin: 0 0 4px 0;"><strong class="muted">CUSTOMER:</strong><br> {{ b.customer }}</p>
+                        <p style="margin: 0 0 4px 0;"><strong class="muted">ITEM:</strong><br> {{ b.item }} ({{ b.quantity }} pcs)</p>
+                        <p style="margin: 0 0 4px 0;"><strong class="muted">PIN:</strong> {{ b.qrcode }}</p>
+                        
+                        {% if b.stored_time %}
+                            {% set diff = (now - b.stored_time).total_seconds() / 3600 %}
+                            {% if diff > 24 %}
+                                <p style="margin: 6px 0 0 0; font-size: 11px; color: #dc2626;">⏱ Stored for {{ "%.1f"|format(diff) }} hrs ⚠️</p>
+                            {% else %}
+                                <p style="margin: 6px 0 0 0; font-size: 11px; color: #6b7280;">⏱ Stored for {{ "%.1f"|format(diff) }} hrs</p>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <form action="{{ url_for('update_bin', bin_id=b.id) }}" method="POST">
+                    
+                    {% if b.physical_state == 'waiting' %}
+                        <button type="submit" name="action" value="dev_call_out" class="btn-success" style="width:100%; margin-bottom:8px; background: #2563eb;">⬇️ Call to Station</button>
+                    {% endif %}
+
+                    {% if b.status == 'occupied' %}
+                        <button type="submit" name="action" value="force_clear" class="btn-retrieve" style="width:100%; margin-bottom:8px;" onclick="return confirm('Force clear {{ b.label }}? This will erase the customer data.');">⚠️ Force Clear Data</button>
+                    {% endif %}
+                    
+                    {% if b.physical_state == 'calledout' %}
+                        <button type="submit" name="action" value="return_wait" class="btn-primary" style="background: #4b5563; width:100%;">⬆️ Return to Rack</button>
+                    {% endif %}
+                </form>
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="flex: 1; background: #f9fafb; border-radius: 12px; border: 1px solid var(--border-color); padding: 1.5rem; min-width: 220px;">
+            <h3 style="margin-top: 0; font-size: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">🕒 Bin Return Records</h3>
+            <div style="max-height: 480px; overflow-y: auto;">
+                {% if return_records %}
+                    {% for r in return_records %}
+                    <div style="margin-bottom: 14px; border-left: 3px solid #10b981; padding-left: 10px;">
+                        <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">{{ r.time }}</span>
+                        <strong style="font-size: 0.85rem; color: #111827;">{{ r.label }}</strong>
+                        <p style="margin: 2px 0 0 0; font-size: 0.82rem; color: #4b5563;">Item: {{ r.item }}<br>Customer: {{ r.customer }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="muted" style="font-size: 0.85rem;">No bins have been returned yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function filterBins() {
+        let input = document.getElementById('binSearchInput').value.toLowerCase();
+        let cards = document.getElementsByClassName('search-card');
+        
+        for (let i = 0; i < cards.length; i++) {
+            let searchableData = cards[i].getAttribute('data-search');
+            if (searchableData.includes(input)) {
+                cards[i].style.display = "";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
+</script>
+
+{% endif %}
+{% endblock %}

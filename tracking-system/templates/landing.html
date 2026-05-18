@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="max-width: 500px; margin: 4rem auto; text-align: center; background: white; padding: 3rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <h1 style="font-size: 2.5rem; color: #1f2937; margin-bottom: 10px;">Welcome to Flex-Bin</h1>
+    <p style="color: #6b7280; font-size: 1.1rem; margin-bottom: 2rem;">Please select your role to continue.</p>
+    
+    <a href="{{ url_for('set_role', role='developer') }}" style="display: block; background: #2563eb; color: white; padding: 16px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; text-decoration: none; margin-bottom: 15px;">
+        👨‍💻 Enter as Developer / Admin
+    </a>
+    
+    <a href="{{ url_for('set_role', role='user') }}" style="display: block; background: #10b981; color: white; padding: 16px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; text-decoration: none;">
+        📦 Enter as User (Store/Retrieve)
+    </a>
+</div>
+
+{% endblock %}
